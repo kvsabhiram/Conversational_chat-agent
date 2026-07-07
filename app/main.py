@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 
 from app.config import get_settings
-from app.routers import chat, agents, documents, analytics, tenants
+from app.routers import chat, agents, documents, analytics, tenants, openai_compat
 from app.routers.persona import router as persona_router
 from app.services.llm_client import llm_client
 from app.services.memory_manager import memory_manager
@@ -46,6 +46,7 @@ app.include_router(documents.router)
 app.include_router(analytics.router)
 app.include_router(tenants.router)
 app.include_router(persona_router)
+app.include_router(openai_compat.router)  # OpenAI-compatible /v1 for Chat Bucket custom-LLM
 
 
 @app.get("/")
