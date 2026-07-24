@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: chat-agent-platform
+    metrics_path: /metrics
+    # /metrics sits behind AuthMiddleware like every other route (see
+    # app/main.py) — update this key if you change API_SECRET_KEY.
+    http_headers:
+      X-API-Key:
+        values: ["change-this-secret"]
+    static_configs:
+      - targets: ["app:5000"]

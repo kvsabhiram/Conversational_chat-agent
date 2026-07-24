@@ -7,6 +7,7 @@ Uses Redis as a simple FIFO queue with concurrency control.
 import asyncio
 import redis.asyncio as redis
 from app.config import get_settings
+from app.utils import metrics
 from app.utils.logger import get_logger
 
 logger = get_logger("queue")
@@ -38,6 +39,7 @@ class QueueManager:
                 self.semaphore.acquire(), timeout=timeout
             )
             self.active_requests += 1
+            metrics.active_llm_slots.set(self.active_requests)
             logger.debug(f"Slot acquired for {session_id}. Active: {self.active_requests}/{MAX_CONCURRENT}")
             return acquired
         except asyncio.TimeoutError:
@@ -48,6 +50,7 @@ class QueueManager:
         """Release a slot after request completes."""
         self.semaphore.release()
         self.active_requests = max(0, self.active_requests - 1)
+        metrics.active_llm_slots.set(self.active_requests)
         logger.debug(f"Slot released for {session_id}. Active: {self.active_requests}/{MAX_CONCURRENT}")
 
     @property

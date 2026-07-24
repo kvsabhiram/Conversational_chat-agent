@@ -47,28 +47,90 @@ export default function ChatPlayground() {
     setInput("");
     setMessages((p) => [...p, { role: "user", text: msg }]);
     setLoading(true);
+    // eslint-disable-next-line react-hooks/purity -- runs only inside this event handler, never during render
     const t0 = performance.now();
+
+    let botIndex = -1;
+    const ensureBotMessage = () => {
+      if (botIndex !== -1) return;
+      setMessages((p) => {
+        botIndex = p.length;
+        return [...p, { role: "bot", text: "" }];
+      });
+    };
+    const patchBotMessage = (patch) => {
+      setMessages((p) => {
+        if (botIndex === -1 || !p[botIndex]) return p;
+        const next = [...p];
+        next[botIndex] = { ...next[botIndex], ...patch };
+        return next;
+      });
+    };
 
     try {
       const res = await fetch(`${API_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, session_id: sessionId, sector: sector.id }),
+        body: JSON.stringify({ message: msg, session_id: sessionId, sector: sector.id, stream: true }),
       });
-      const d = await res.json();
-      const lat = Math.round(performance.now() - t0);
-      if (d.session_id) setSessionId(d.session_id);
-      setStats({ intent: d.intent, confidence: d.confidence, latency: lat, sources: d.sources });
-      setMessages((p) => [...p, { role: "bot", text: d.reply, intent: d.intent, confidence: d.confidence, escalated: d.escalated }]);
+      if (!res.ok || !res.body) throw new Error("bad response");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      let replyText = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+
+        let idx;
+        while ((idx = buf.indexOf("\n\n")) !== -1) {
+          const raw = buf.slice(0, idx);
+          buf = buf.slice(idx + 2);
+          const line = raw.split("\n").find((l) => l.startsWith("data:"));
+          if (!line) continue;
+
+          let evt;
+          try {
+            evt = JSON.parse(line.slice(5).trim());
+          } catch {
+            continue;
+          }
+
+          if (evt.type === "start") {
+            if (evt.session_id) setSessionId(evt.session_id);
+          } else if (evt.type === "chunk") {
+            replyText += (replyText ? " " : "") + evt.text;
+            ensureBotMessage();
+            patchBotMessage({ text: replyText });
+          } else if (evt.type === "done") {
+            // eslint-disable-next-line react-hooks/purity -- runs only inside this event handler, never during render
+            const lat = Math.round(performance.now() - t0);
+            if (evt.session_id) setSessionId(evt.session_id);
+            setStats({ intent: evt.intent, confidence: evt.confidence, latency: lat, sources: evt.sources });
+            ensureBotMessage();
+            patchBotMessage({ text: evt.reply, intent: evt.intent, confidence: evt.confidence, escalated: evt.escalated });
+          } else if (evt.type === "error") {
+            ensureBotMessage();
+            patchBotMessage({ text: replyText || "Something went wrong. Please try again.", error: true });
+          }
+        }
+      }
     } catch {
-      setMessages((p) => [...p, { role: "bot", text: "Connection error. Is the server running on localhost:5000?", error: true }]);
+      if (botIndex === -1) {
+        setMessages((p) => [...p, { role: "bot", text: "Connection error. Is the server running on localhost:5000?", error: true }]);
+      } else {
+        patchBotMessage({ text: "Connection error. Is the server running on localhost:5000?", error: true });
+      }
     }
     setLoading(false);
     inputRef.current?.focus();
   };
 
   const clearChat = async () => {
-    if (sessionId) { try { await fetch(`${API_URL}/api/session/${sessionId}`, { method: "DELETE" }); } catch {} }
+    if (sessionId) { try { await fetch(`${API_URL}/api/session/${sessionId}`, { method: "DELETE" }); } catch { /* best-effort, ignore */ } }
     setMessages([]);
     setSessionId(null);
     setStats({});

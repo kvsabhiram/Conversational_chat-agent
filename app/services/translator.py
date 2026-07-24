@@ -7,6 +7,7 @@ original text is returned and the pipeline continues.
 import time
 import httpx
 from app.config import get_settings
+from app.utils import metrics
 from app.utils.logger import get_logger
 
 logger = get_logger("translator")
@@ -17,6 +18,7 @@ async def _translate(text: str, src_lang: str, tgt_lang: str) -> str:
     if not text.strip():
         return text
 
+    direction = "to_english" if tgt_lang.upper() == "ENGLISH" else "from_english"
     start = time.time()
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
@@ -28,6 +30,8 @@ async def _translate(text: str, src_lang: str, tgt_lang: str) -> str:
             output = resp.json().get("output", text)
     except Exception as e:
         latency = round((time.time() - start) * 1000, 2)
+        metrics.translation_failures_total.labels(src=src_lang, tgt=tgt_lang).inc()
+        metrics.translation_latency_seconds.labels(direction=direction).observe(latency / 1000)
         logger.warning(
             f"translation failed src={src_lang} tgt={tgt_lang} after {latency}ms: {e}",
             extra={
@@ -42,6 +46,7 @@ async def _translate(text: str, src_lang: str, tgt_lang: str) -> str:
         return text
 
     latency = round((time.time() - start) * 1000, 2)
+    metrics.translation_latency_seconds.labels(direction=direction).observe(latency / 1000)
     logger.info(
         f"translate src={src_lang} tgt={tgt_lang} latency={latency}ms "
         f"in={text[:80]} out={output[:80]}",

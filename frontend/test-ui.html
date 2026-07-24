@@ -4,125 +4,235 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agent Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--purple:#7C5CFC;--purple-hover:#6B4CE6;--purple-light:#EDE9FE;--bg:#F7F7FB;--card:#fff;--text:#1F2937;--text-light:#6B7280;--text-muted:#9CA3AF;--border:#E5E7EB;--green:#22C55E;--red:#EF4444}
+:root{
+  --ink:#1E140D;
+  --ink-2:#2A1D14;
+  --ink-border:#4A3626;
+  --sidebar-text:#F6E9DB;
+  --sidebar-text-dim:#C9A98C;
+  --accent:#BF5024;
+  --accent-hover:#A8451C;
+  --accent-light:#FFF8F2;
+  --accent-soft:#FBE3D2;
+  --bg:#FBF3EA;
+  --card:#FFFFFF;
+  --text:#3A2B22;
+  --text-light:#6C5546;
+  --text-muted:#7D6856;
+  --border:#EEDCC7;
+  --green:#206B3F;
+  --green-soft:#EAF6EC;
+  --red:#C93838;
+  --purple:#7A4F8C;
+  --purple-light:#F3E9F7;
+  --shadow-sm:0 2px 8px rgba(120,72,32,.08);
+  --shadow-md:0 8px 22px rgba(120,72,32,.12);
+  --shadow-lg:0 24px 60px rgba(40,20,8,.35);
+  --sidebar-w:272px;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--border)}
+html,body{height:100%}
+body{font-family:'Nunito',sans-serif;background:var(--ink);color:var(--text);height:100vh;overflow:hidden}
+
+/* SHELL */
+.app-shell{display:flex;height:100vh;width:100vw}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:linear-gradient(180deg,var(--ink) 0%,var(--ink-2) 100%);color:var(--sidebar-text);display:flex;flex-direction:column;height:100vh;border-right:1px solid var(--ink-border)}
+.brand{display:flex;align-items:center;gap:12px;padding:22px 20px 18px}
+.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#8F3814);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:var(--shadow-sm);flex-shrink:0}
+.brand-word{font-family:'Sora',sans-serif;font-size:16.5px;font-weight:600;letter-spacing:.01em;color:var(--sidebar-text)}
+.brand-word strong{font-weight:800}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:6px 14px 14px}
+.sidebar-label{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--sidebar-text-dim);padding:14px 10px 8px}
+.sector-tabs{display:flex;flex-direction:column;gap:3px}
+.sector-tab{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border:1px solid transparent;border-radius:12px;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;background:transparent;color:var(--sidebar-text-dim);transition:all .15s;white-space:nowrap}
+.sector-tab:hover{background:rgba(255,255,255,.07);color:var(--sidebar-text)}
+.sector-tab.active{background:var(--accent);color:#fff;box-shadow:var(--shadow-sm)}
+.sector-tab.create{margin-top:8px;border:1.5px dashed rgba(255,255,255,.28);color:var(--sidebar-text)}
+.sector-tab.create:hover{background:var(--accent);border-style:solid;border-color:var(--accent);color:#fff}
+.sector-tab.custom-tab{border:1px solid rgba(255,255,255,.18)}
+.sector-tab.custom-tab.active{background:var(--accent);border-color:var(--accent)}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--ink-border);display:flex;flex-direction:column;gap:4px}
+.sidebar-footer a{font-size:11px;color:var(--sidebar-text-dim);text-decoration:none;font-weight:600}
+.sidebar-footer a:hover{color:#fff}
+
+/* WORKSPACE */
+.workspace{flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;background:var(--bg)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;background:var(--card);border-bottom:1px solid var(--border)}
 .topbar-left{display:flex;align-items:center;gap:12px}
-.topbar-avatar{width:40px;height:40px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid var(--purple)}
-.topbar-info .name{font-size:15px;font-weight:700}
-.topbar-info .status{font-size:12px;color:var(--green);display:flex;align-items:center;gap:4px}
-.topbar-info .status::before{content:'';width:6px;height:6px;border-radius:3px;background:var(--green)}
-.topbar-right{display:flex;gap:8px}
-.sos-btn{background:var(--red);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
-.icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-light)}
-.sector-tabs{display:flex;gap:4px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto;align-items:center}
-.sector-tab{padding:8px 14px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;background:transparent;color:var(--text-light);transition:all .12s;white-space:nowrap;display:flex;align-items:center;gap:6px}
-.sector-tab:hover{background:#f3f3f8}
-.sector-tab.active{background:var(--purple);color:#fff}
-.sector-tab.create{border:1.5px dashed var(--purple);color:var(--purple);background:var(--purple-light)}
-.sector-tab.create:hover{background:var(--purple);color:#fff}
-.sector-tab.custom-tab{border:1px solid var(--purple);color:var(--purple);background:var(--purple-light)}
-.sector-tab.custom-tab.active{background:var(--purple);color:#fff}
-.main-area{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:24px 16px}
-.landing{text-align:center;max-width:500px;width:100%}
-.landing-icon{width:72px;height:72px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:32px;margin:20px auto 16px;border:2px solid var(--purple)}
-.landing-title{font-size:22px;font-weight:700;margin-bottom:6px}
-.landing-desc{font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:4px}
-.landing-badge{font-size:11px;color:var(--green);font-weight:600;margin-bottom:24px}
-.section-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
-.services{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:28px}
-.service-btn{padding:10px 18px;border:1px solid var(--border);border-radius:24px;background:var(--card);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .12s}
-.service-btn:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-light)}
-.service-btn.highlight{border-color:var(--purple);color:var(--purple);background:var(--purple-light)}
-.languages{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px}
-.lang-btn{padding:6px 14px;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-light);font-size:12px;cursor:pointer;font-family:inherit;transition:all .12s}
-.lang-btn:hover,.lang-btn.active{border-color:var(--purple);color:var(--purple);background:var(--purple-light)}
-.lang-hint{font-size:11px;color:var(--text-muted);margin-top:8px}
-/* MODAL */
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center}
-.modal{background:var(--card);border-radius:20px;width:90%;max-width:520px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.15)}
-.modal h2{font-size:20px;font-weight:700;margin-bottom:4px}
-.modal .sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
-.modal label{font-size:12px;font-weight:600;color:var(--text-light);display:block;margin-bottom:6px}
-.modal input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;margin-bottom:14px;color:var(--text)}
-.modal input:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-light)}
-.modal textarea{width:100%;height:180px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;resize:vertical;color:var(--text);line-height:1.6}
-.modal textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-light)}
-.modal .char-count{font-size:11px;color:var(--text-muted);text-align:right;margin-top:4px;margin-bottom:14px}
-.modal .btn-row{display:flex;gap:10px;justify-content:flex-end}
-.modal .btn-cancel{padding:10px 20px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text-light);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
-.modal .btn-create{padding:10px 24px;border:none;border-radius:10px;background:var(--purple);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
-.modal .btn-create:disabled{opacity:.4;cursor:default}
-.modal .btn-create:hover:not(:disabled){background:var(--purple-hover)}
-.modal .loading{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--purple);margin-top:10px}
-.spin{width:16px;height:16px;border:2px solid var(--purple-light);border-top:2px solid var(--purple);border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+.topbar-avatar{position:relative;width:44px;height:44px;border-radius:14px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid var(--accent)}
+.topbar-avatar::after{content:'';position:absolute;bottom:-3px;right:-3px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid var(--card);animation:livepulse 2s ease-in-out infinite}
+@keyframes livepulse{0%,100%{box-shadow:0 0 0 0 rgba(32,107,63,.45)}50%{box-shadow:0 0 0 4px rgba(32,107,63,0)}}
+.topbar-info .name{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--text)}
+.topbar-info .status{font-size:12px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:5px}
+.topbar-info .status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green)}
+.topbar-right{display:flex;gap:8px;align-items:center}
+.sos-btn{background:var(--red);color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm);transition:transform .12s,box-shadow .12s}
+.sos-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.icon-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-light);transition:all .15s}
+.icon-btn:hover{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
+
+/* MAIN AREA / LANDING */
+.main-area{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:40px 24px}
+.landing{text-align:center;max-width:560px;width:100%;margin:auto 0}
+.landing-icon{width:96px;height:96px;border-radius:28px;background:linear-gradient(160deg,var(--accent-soft),#fff);display:flex;align-items:center;justify-content:center;font-size:42px;margin:0 auto 22px;border:1px solid var(--border);box-shadow:var(--shadow-md)}
+.landing-title{font-family:'Sora',sans-serif;font-size:27px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.landing-desc{font-size:14.5px;color:var(--text-muted);line-height:1.7;margin:0 auto 14px;max-width:440px}
+.landing-badge{font-size:11px;color:var(--green);font-weight:700;margin-bottom:32px;display:inline-flex;align-items:center;gap:6px;background:var(--green-soft);padding:6px 14px;border-radius:20px}
+.landing-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green)}
+.section-label{font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px}
+.services{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:8px}
+.service-btn{padding:12px 22px;border:1.5px solid var(--border);border-radius:16px;background:var(--card);color:var(--text);font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;box-shadow:var(--shadow-sm)}
+.service-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);transform:translateY(-2px)}
+.service-btn.highlight{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.lang-hint{font-size:11.5px;color:var(--text-muted);margin-top:18px;line-height:1.6}
+
 /* CHAT */
-.chat-messages{flex:1;width:100%;max-width:600px;padding:0 4px}
-.msg-row{display:flex;margin-bottom:14px}
+.chat-messages{flex:1;width:100%;max-width:680px;padding:4px}
+.msg-row{display:flex;margin-bottom:18px}
 .msg-row.user{justify-content:flex-end}
 .msg-row.bot{justify-content:flex-start}
-.msg-wrap{max-width:80%}
-.bot-info{display:flex;align-items:center;gap:5px;margin-bottom:3px}
-.bot-av{width:20px;height:20px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:10px}
-.bot-nm{font-size:11px;font-weight:600;color:var(--text-light)}
-.bubble{padding:11px 15px;font-size:14px;line-height:1.65;white-space:pre-wrap}
-.bubble.user{background:var(--purple);color:#fff;border-radius:16px 16px 4px 16px}
-.bubble.bot{background:var(--card);color:var(--text);border-radius:16px 16px 16px 4px;border:1px solid var(--border)}
-.bubble.error{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;border-radius:16px}
-.bubble.escalated{background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;border-radius:16px}
-.tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
-.tag{font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:4px}
-.t-int{background:var(--purple-light);color:var(--purple)}
-.t-conf{background:#F3F4F6;color:var(--text-light)}
-.t-esc{background:#FFFBEB;color:#92400E}
-.t-src{background:#ECFDF5;color:#065F46}
-.typing-row{display:flex;gap:4px;padding:11px 15px}
-.t-dot{width:7px;height:7px;border-radius:4px;background:var(--text-muted);animation:tp 1.4s ease-in-out infinite}
+.msg-wrap{max-width:78%}
+.bot-info{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.bot-av{width:24px;height:24px;border-radius:8px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:12px}
+.bot-nm{font-size:11.5px;font-weight:700;color:var(--text-light)}
+.bubble{padding:13px 18px;font-size:14px;line-height:1.7;white-space:pre-wrap}
+.bubble.user{background:var(--accent);color:#fff;border-radius:18px 18px 4px 18px;box-shadow:var(--shadow-sm)}
+.bubble.bot{background:var(--card);color:var(--text);border-radius:18px 18px 18px 4px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+.bubble.error{background:#FDEEEA;color:#A23B2E;border:1px solid #F3CFC2;border-radius:16px}
+.bubble.escalated{background:#FFF6E0;color:#8A5A12;border:1px solid #F5DFAE;border-radius:16px}
+.tags{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.tag{font-size:9.5px;font-family:'JetBrains Mono',monospace;padding:3px 9px;border-radius:8px;font-weight:500}
+.t-int{background:var(--accent-light);color:var(--accent)}
+.t-conf{background:#F3ECE4;color:var(--text-light)}
+.t-esc{background:#FFF6E0;color:#8A5A12}
+.t-src{background:var(--green-soft);color:#276B44}
+.typing-row{display:flex;gap:5px;padding:13px 18px}
+.t-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);opacity:.55;animation:tp 1.4s ease-in-out infinite}
 .t-dot:nth-child(2){animation-delay:.2s}
 .t-dot:nth-child(3){animation-delay:.4s}
 @keyframes tp{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:1}}
-.lang-bar{display:flex;gap:10px;padding:8px 16px 0;background:var(--card);align-items:center;font-size:11px;color:var(--text-light)}
-.lang-bar label{font-weight:500;margin-right:2px}
-.lang-select{flex:1;max-width:170px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);outline:none;cursor:pointer}
-.lang-select:focus{border-color:var(--purple);box-shadow:0 0 0 2px var(--purple-light)}
-.input-bar{padding:10px 16px 14px;background:var(--card);border-top:1px solid var(--border);display:flex;gap:10px;align-items:center}
-.msg-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:24px;padding:12px 20px;font-size:14px;font-family:inherit;outline:none;color:var(--text)}
-.msg-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-light)}
+
+/* COMPOSER (lang bar + input) */
+.composer{background:var(--card);border:1px solid var(--border);border-radius:22px;margin:0 24px 20px;padding:14px 22px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow-md)}
+.lang-bar{display:flex;align-items:center;gap:14px;font-size:11.5px;color:var(--text-light);flex-wrap:wrap}
+.lang-field{display:flex;align-items:center;gap:8px}
+.lang-field label{font-weight:700}
+.lang-divider{color:var(--text-muted);font-size:13px}
+.lang-select{padding:7px 10px;border:1.5px solid var(--border);border-radius:12px;font-size:12px;font-family:inherit;background:var(--bg);color:var(--text);outline:none;cursor:pointer;transition:border-color .15s;max-width:180px}
+.lang-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.input-bar{display:flex;gap:12px;align-items:center}
+.msg-input{flex:1;background:var(--bg);border:1.5px solid var(--border);border-radius:26px;padding:14px 22px;font-size:14px;font-family:inherit;outline:none;color:var(--text);transition:border-color .15s,box-shadow .15s}
+.msg-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-light);background:var(--card)}
 .msg-input::placeholder{color:var(--text-muted)}
-.send{width:44px;height:44px;border-radius:50%;background:var(--purple);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.send:disabled{opacity:.3;cursor:default}
+.send{width:48px;height:48px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--shadow-sm);transition:all .15s}
+.send:hover:not(:disabled){background:var(--accent-hover);transform:scale(1.05)}
+.send:disabled{opacity:.35;cursor:default}
 .send svg{width:20px;height:20px}
-.footer{text-align:center;padding:6px;font-size:11px;color:var(--text-muted);background:var(--card);border-top:1px solid var(--border)}
-.footer a{color:var(--purple);text-decoration:none;font-weight:600}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(20,12,6,.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
+.modal{background:var(--card);border-radius:24px;width:90%;max-width:540px;padding:34px;box-shadow:var(--shadow-lg);position:relative}
+.modal-icon{width:44px;height:44px;border-radius:14px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px}
+.modal h2{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.modal .sub{font-size:13px;color:var(--text-muted);margin-bottom:22px;line-height:1.6}
+.modal label{font-size:12px;font-weight:700;color:var(--text-light);display:block;margin-bottom:6px}
+.modal input{width:100%;padding:11px 16px;border:1.5px solid var(--border);border-radius:14px;font-size:14px;font-family:inherit;outline:none;margin-bottom:16px;color:var(--text);background:var(--bg);transition:border-color .15s,box-shadow .15s}
+.modal input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-light);background:var(--card)}
+.modal textarea{width:100%;height:180px;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;font-size:13px;font-family:inherit;outline:none;resize:vertical;color:var(--text);line-height:1.7;background:var(--bg);transition:border-color .15s,box-shadow .15s}
+.modal textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-light);background:var(--card)}
+.modal .char-count{font-size:11px;color:var(--text-muted);text-align:right;margin-top:5px;margin-bottom:16px}
+.modal .btn-row{display:flex;gap:10px;justify-content:flex-end}
+.modal .btn-cancel{padding:11px 22px;border:1.5px solid var(--border);border-radius:16px;background:transparent;color:var(--text-light);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.modal .btn-cancel:hover{background:var(--bg);border-color:var(--text-light)}
+.modal .btn-create{padding:11px 26px;border:none;border-radius:16px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-sm);transition:all .15s}
+.modal .btn-create:disabled{opacity:.4;cursor:default;box-shadow:none}
+.modal .btn-create:hover:not(:disabled){background:var(--accent-hover);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.modal .loading{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--accent);margin-top:12px;font-weight:600}
+.spin{width:17px;height:17px;border:2.5px solid var(--accent-light);border-top:2.5px solid var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.sidebar ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18)}
+
+/* RESPONSIVE: collapse sidebar to a top bar on narrow viewports */
+@media (max-width:900px){
+  .app-shell{flex-direction:column}
+  .sidebar{width:100%;height:auto;flex-direction:row;align-items:center;border-right:none;border-bottom:1px solid var(--ink-border)}
+  .brand{padding:12px 16px}
+  .sidebar-scroll{flex:1;overflow-x:auto;overflow-y:hidden;padding:6px 10px;white-space:nowrap}
+  .sector-tabs{flex-direction:row}
+  .sidebar-label{display:none}
+  .sidebar-footer{display:none}
+  .workspace{height:auto;flex:1;min-height:0}
+}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="topbar-left"><div class="topbar-avatar" id="t-avatar"></div><div class="topbar-info"><div class="name" id="t-name"></div><div class="status" id="t-status"></div></div></div>
-  <div class="topbar-right"><button class="sos-btn" id="sos-btn" style="display:none" onclick="sendSOS()">SOS</button><button class="icon-btn" onclick="clearChat()" title="New chat">+</button></div>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M12 3C7.03 3 3 6.58 3 11c0 2.36 1.14 4.47 2.96 5.94-.1 1.02-.47 2.3-1.4 3.6a.5.5 0 00.53.77c1.98-.5 3.5-1.33 4.47-2 .78.19 1.6.29 2.44.29 4.97 0 9-3.58 9-8s-4.03-8-9-8z" fill="currentColor"/></svg>
+      </div>
+      <div class="brand-word"><strong>Agent</strong>Platform</div>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="sidebar-label">Sectors</div>
+      <nav class="sector-tabs" id="sector-tabs"></nav>
+    </div>
+    <div class="sidebar-footer">
+      <a href="#">Powered by AgentPlatform</a>
+      <a href="/docs">Admin console</a>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-avatar" id="t-avatar"></div>
+        <div class="topbar-info">
+          <div class="name" id="t-name"></div>
+          <div class="status" id="t-status"></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="sos-btn" id="sos-btn" style="display:none" onclick="sendSOS()">SOS</button>
+        <button class="icon-btn" onclick="clearChat()" title="New chat">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="main-area" id="main-area"></div>
+
+    <div class="composer">
+      <div class="lang-bar">
+        <div class="lang-field">
+          <label for="src-lang">Input</label>
+          <select class="lang-select" id="src-lang"></select>
+        </div>
+        <div class="lang-divider">&rarr;</div>
+        <div class="lang-field">
+          <label for="tgt-lang">Output</label>
+          <select class="lang-select" id="tgt-lang"></select>
+        </div>
+      </div>
+      <div class="input-bar">
+        <input class="msg-input" id="msg-input" placeholder="" onkeydown="if(event.key==='Enter')doSend()">
+        <button class="send" id="send-btn" onclick="doSend()" disabled><svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+  </main>
 </div>
-<div class="sector-tabs" id="sector-tabs"></div>
-<div class="main-area" id="main-area"></div>
-<div class="lang-bar">
-  <label for="src-lang">Input</label>
-  <select class="lang-select" id="src-lang"></select>
-  <label for="tgt-lang">Output</label>
-  <select class="lang-select" id="tgt-lang"></select>
-</div>
-<div class="input-bar">
-  <input class="msg-input" id="msg-input" placeholder="" onkeydown="if(event.key==='Enter')doSend()">
-  <button class="send" id="send-btn" onclick="doSend()" disabled><svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-</div>
-<div class="footer">Powered by <a href="#">AgentPlatform</a> &middot; <a href="/docs">Admin</a></div>
 
 <!-- MODAL -->
 <div class="modal-overlay" id="modal" style="display:none">
   <div class="modal">
+    <div class="modal-icon">&#10024;</div>
     <h2>Create Custom Persona</h2>
     <div class="sub">Paste your system prompt (max 2000 chars). The AI will extract features and create a chat agent.</div>
     <label>Agent name (optional)</label>
@@ -143,11 +253,10 @@ For refunds, explain the 5-7 business day timeline..." maxlength="2000" oninput=
     </div>
   </div>
 </div>
-
 <script>
 const API=window.location.origin;
-const HDR={"Content-Type":"application/json","ngrok-skip-browser-warning":"true"};
-const LANGS=["English","\u0C24\u0C46\u0C32\u0C41\u0C17\u0C41","\u0939\u093F\u0902\u0926\u0940","\u0BA4\u0BAE\u0BBF\u0BB4\u0BCD","\u0C95\u0CA8\u0CCD\u0CA8\u0CA1","\u0D2E\u0D32\u0D2F\u0D3E\u0D33\u0D02","\u092E\u0930\u093E\u0920\u0940","\u09AC\u09BE\u0982\u09B2\u09BE","\u0A97\u0AC1\u0A9C\u0AB0\u0ABE\u0AA4\u0AC0"];
+const API_KEY="sk-23189ec2657d68794d7b680c04b5079e57d2e892e34a863c";
+const HDR={"Content-Type":"application/json","ngrok-skip-browser-warning":"true","X-API-Key":API_KEY};
 
 const BUILT_IN=[
   {id:"retail",name:"Retail",icon:"\u{1F6D2}",agent:"Priya",company:"ShopEasy",desc:"AI shopping assistant \u2014 track orders, refunds, and product help.",services:[{t:"Track Order",h:1},{t:"Refund"},{t:"Returns"},{t:"Products",h:1},{t:"Payment Help"},{t:"Complaints"}],ph:"Describe your issue..."},
@@ -162,18 +271,109 @@ let allSectors=[...BUILT_IN];
 let cur=allSectors[0],sid=null,msgs=[],busy=false,chatMode=false;
 
 const SRC_LANG_OPTS=[
+  // sentinel - handled specially by the backend, keep value byte-for-byte
   {v:"auto",t:"Auto-detect"},
+  {v:"Afrikaans",t:"Afrikaans"},
+  {v:"Albanian",t:"Albanian"},
+  {v:"Amharic",t:"Amharic"},
+  {v:"Arabic",t:"Arabic"},
+  {v:"Armenian",t:"Armenian"},
+  {v:"Assamese",t:"Assamese"},
+  {v:"Azerbaijani",t:"Azerbaijani"},
+  {v:"Bengali",t:"Bengali"},
+  {v:"Bengali (Roman script)",t:"Bengali (Roman)"},
+  {v:"Bodo",t:"Bodo"},
+  {v:"Bosnian",t:"Bosnian"},
+  {v:"Bulgarian",t:"Bulgarian"},
+  {v:"Burmese",t:"Burmese"},
+  {v:"Catalan",t:"Catalan"},
+  {v:"Cantonese",t:"Chinese (Cantonese)"},
+  {v:"Mandarin Chinese",t:"Chinese (Mandarin)"},
+  {v:"Croatian",t:"Croatian"},
+  {v:"Czech",t:"Czech"},
+  {v:"Danish",t:"Danish"},
+  {v:"Dhivehi (Maldivian)",t:"Dhivehi / Maldivian"},
+  {v:"Dogri",t:"Dogri"},
+  {v:"Dutch",t:"Dutch"},
   {v:"ENGLISH",t:"English"},
-  {v:"HINDI",t:"Hindi"},{v:"BENGALI",t:"Bengali"},{v:"TAMIL",t:"Tamil"},{v:"TELUGU",t:"Telugu"},
-  {v:"KANNADA",t:"Kannada"},{v:"MALAYALAM",t:"Malayalam"},{v:"MARATHI",t:"Marathi"},{v:"GUJARATI",t:"Gujarati"},
-  {v:"PUNJABI",t:"Punjabi"},{v:"ODIA",t:"Odia"},{v:"ASSAMESE",t:"Assamese"},{v:"URDU",t:"Urdu"},
-  {v:"NEPALI",t:"Nepali"},{v:"KASHMIRI",t:"Kashmiri"},{v:"SINDHI",t:"Sindhi"},{v:"KONKANI",t:"Konkani"},
-  {v:"MAITHILI",t:"Maithili"},{v:"MANIPURI",t:"Manipuri"},{v:"BODO",t:"Bodo"},{v:"DOGRI",t:"Dogri"},
-  {v:"SANTALI",t:"Santali"},
-  {v:"HINDI_Latn",t:"Hinglish (Roman)"},{v:"TELUGU_Latn",t:"Telugu (Roman)"},{v:"TAMIL_Latn",t:"Tamil (Roman)"},
-  {v:"BENGALI_Latn",t:"Bengali (Roman)"},{v:"MARATHI_Latn",t:"Marathi (Roman)"},{v:"KANNADA_Latn",t:"Kannada (Roman)"},
-  {v:"MALAYALAM_Latn",t:"Malayalam (Roman)"},{v:"GUJARATI_Latn",t:"Gujarati (Roman)"},{v:"PUNJABI_Latn",t:"Punjabi (Roman)"},
-  {v:"ODIA_Latn",t:"Odia (Roman)"},
+  {v:"Estonian",t:"Estonian"},
+  {v:"Filipino (Tagalog)",t:"Filipino / Tagalog"},
+  {v:"Finnish",t:"Finnish"},
+  {v:"French",t:"French"},
+  {v:"Georgian",t:"Georgian"},
+  {v:"German",t:"German"},
+  {v:"Greek",t:"Greek"},
+  {v:"Gujarati",t:"Gujarati"},
+  {v:"Gujarati (Roman script)",t:"Gujarati (Roman)"},
+  {v:"Haitian Creole",t:"Haitian Creole"},
+  {v:"Hausa",t:"Hausa"},
+  {v:"Hebrew",t:"Hebrew"},
+  {v:"Hindi",t:"Hindi"},
+  {v:"Hindi (Roman script / Hinglish)",t:"Hinglish (Roman)"},
+  {v:"Hungarian",t:"Hungarian"},
+  {v:"Icelandic",t:"Icelandic"},
+  {v:"Igbo",t:"Igbo"},
+  {v:"Indonesian",t:"Indonesian"},
+  {v:"Irish",t:"Irish"},
+  {v:"Italian",t:"Italian"},
+  {v:"Japanese",t:"Japanese"},
+  {v:"Kannada",t:"Kannada"},
+  {v:"Kannada (Roman script)",t:"Kannada (Roman)"},
+  {v:"Kashmiri",t:"Kashmiri"},
+  {v:"Kazakh",t:"Kazakh"},
+  {v:"Khmer",t:"Khmer"},
+  {v:"Konkani",t:"Konkani"},
+  {v:"Korean",t:"Korean"},
+  {v:"Kurdish",t:"Kurdish"},
+  {v:"Lao",t:"Lao"},
+  {v:"Latvian",t:"Latvian"},
+  {v:"Lithuanian",t:"Lithuanian"},
+  {v:"Maithili",t:"Maithili"},
+  {v:"Malay",t:"Malay"},
+  {v:"Malayalam",t:"Malayalam"},
+  {v:"Malayalam (Roman script)",t:"Malayalam (Roman)"},
+  {v:"Manipuri",t:"Manipuri"},
+  {v:"Marathi",t:"Marathi"},
+  {v:"Marathi (Roman script)",t:"Marathi (Roman)"},
+  {v:"Mongolian",t:"Mongolian"},
+  {v:"Nepali",t:"Nepali"},
+  {v:"Norwegian",t:"Norwegian"},
+  {v:"Odia",t:"Odia"},
+  {v:"Odia (Roman script)",t:"Odia (Roman)"},
+  {v:"Pashto",t:"Pashto"},
+  {v:"Persian (Farsi)",t:"Persian / Farsi"},
+  {v:"Polish",t:"Polish"},
+  {v:"Portuguese",t:"Portuguese"},
+  {v:"Punjabi",t:"Punjabi"},
+  {v:"Punjabi (Roman script)",t:"Punjabi (Roman)"},
+  {v:"Romanian",t:"Romanian"},
+  {v:"Russian",t:"Russian"},
+  {v:"Santali",t:"Santali"},
+  {v:"Serbian",t:"Serbian"},
+  {v:"Sindhi",t:"Sindhi"},
+  {v:"Sinhala",t:"Sinhala"},
+  {v:"Slovak",t:"Slovak"},
+  {v:"Somali",t:"Somali"},
+  {v:"Spanish",t:"Spanish"},
+  {v:"Swahili",t:"Swahili"},
+  {v:"Swedish",t:"Swedish"},
+  {v:"Tajik",t:"Tajik"},
+  {v:"Tamil",t:"Tamil"},
+  {v:"Tamil (Roman script)",t:"Tamil (Roman)"},
+  {v:"Telugu",t:"Telugu"},
+  {v:"Telugu (Roman script)",t:"Telugu (Roman)"},
+  {v:"Thai",t:"Thai"},
+  {v:"Tibetan",t:"Tibetan"},
+  {v:"Turkish",t:"Turkish"},
+  {v:"Turkmen",t:"Turkmen"},
+  {v:"Ukrainian",t:"Ukrainian"},
+  {v:"Urdu",t:"Urdu"},
+  {v:"Uzbek",t:"Uzbek"},
+  {v:"Vietnamese",t:"Vietnamese"},
+  {v:"Welsh",t:"Welsh"},
+  {v:"Xhosa",t:"Xhosa"},
+  {v:"Yoruba",t:"Yoruba"},
+  {v:"Zulu",t:"Zulu"},
 ];
 const TGT_LANG_OPTS=SRC_LANG_OPTS.filter(o=>o.v!=="auto");
 
@@ -213,7 +413,7 @@ function render(){
   const a=document.getElementById("main-area");
   if(!chatMode||!msgs.length){
     a.innerHTML=`<div class="landing"><div class="landing-icon">${cur.icon}</div><div class="landing-title">${cur.company}</div><div class="landing-desc">${cur.desc}</div><div class="landing-badge">24/7 Customer Support</div><div class="section-label">Services</div><div class="services">${(cur.services||[]).map(s=>`<button class="service-btn ${s.h?'highlight':''}" onclick="tap('${s.t}')">${s.t}</button>`).join("")}</div>
-    ${!cur.id.startsWith("custom_")?`<div class="section-label">Available Languages</div><div class="languages">${LANGS.map((l,i)=>`<button class="lang-btn ${i===0?'active':''}">${l}</button>`).join("")}</div><div class="lang-hint">Chat in your preferred language</div>`:
+    ${!cur.id.startsWith("custom_")?`<div class="lang-hint">\u{1F310} Chat in 100+ languages, including romanized/Hinglish-style options \u2014 pick Input/Output below.</div>`:
     `<div style="margin-top:10px;padding:12px 16px;background:var(--purple-light);border-radius:12px;font-size:12px;color:var(--purple);text-align:left;max-width:400px;margin-left:auto;margin-right:auto"><b>Custom persona</b> \u2014 This agent uses your custom prompt. <button style="background:none;border:none;color:var(--red);cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;margin-left:8px" onclick="deletePersona('${cur.id}')">Delete</button></div>`}</div>`;
     return}
   a.innerHTML=`<div class="chat-messages">${msgs.map(m=>{
@@ -222,7 +422,7 @@ function render(){
     let tg="";if(m.intent)tg+=`<span class="tag t-int">${m.intent}</span><span class="tag t-conf">${Math.round(m.confidence*100)}%</span>`;
     if(m.escalated)tg+=`<span class="tag t-esc">escalated</span>`;if(m.srcCount)tg+=`<span class="tag t-src">${m.srcCount} sources</span>`;
     return`<div class="msg-row bot"><div class="msg-wrap"><div class="bot-info"><div class="bot-av">${cur.icon}</div><span class="bot-nm">${cur.agent}</span></div><div class="bubble ${bc}">${esc(m.text)}</div>${tg?`<div class="tags">${tg}</div>`:""}</div></div>`}).join("")}
-  ${busy?`<div class="msg-row bot"><div class="msg-wrap"><div class="bot-info"><div class="bot-av">${cur.icon}</div><span class="bot-nm">${cur.agent}</span></div><div class="bubble bot"><div class="typing-row"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div></div></div></div>`:""}</div>`;
+  ${(busy&&!(msgs.length&&msgs[msgs.length-1].role==="bot"))?`<div class="msg-row bot"><div class="msg-wrap"><div class="bot-info"><div class="bot-av">${cur.icon}</div><span class="bot-nm">${cur.agent}</span></div><div class="bubble bot"><div class="typing-row"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div></div></div></div>`:""}</div>`;
   a.scrollTop=a.scrollHeight}
 
 function tap(t){document.getElementById("msg-input").value=t;doSend()}
@@ -231,10 +431,45 @@ function sendSOS(){document.getElementById("msg-input").value="I have a medical 
 async function doSend(){const inp=document.getElementById("msg-input"),text=inp.value.trim();if(!text||busy)return;inp.value="";updBtn();chatMode=true;msgs.push({role:"user",text});busy=true;render();
   const srcLang=document.getElementById("src-lang").value;
   const tgtLang=document.getElementById("tgt-lang").value;
-  try{const r=await fetch(`${API}/api/chat`,{method:"POST",headers:HDR,body:JSON.stringify({message:text,session_id:sid,sector:cur.id,src_lang:srcLang,lang:tgtLang})});const d=await r.json();if(d.session_id)sid=d.session_id;msgs.push({role:"bot",text:d.reply,intent:d.intent,confidence:d.confidence,escalated:d.escalated,srcCount:d.sources?d.sources.length:0,error:false})}catch(e){msgs.push({role:"bot",text:"Connection error. Is the server running?",error:true})}
+  const botMsg={role:"bot",text:"",intent:null,confidence:null,escalated:false,srcCount:0,error:false};
+  let pushed=false;
+  try{
+    const r=await fetch(`${API}/api/chat`,{method:"POST",headers:HDR,body:JSON.stringify({message:text,session_id:sid,sector:cur.id,src_lang:srcLang,lang:tgtLang,stream:true})});
+    if(!r.ok||!r.body)throw new Error("bad response");
+    const reader=r.body.getReader(),decoder=new TextDecoder();let buf="";
+    while(true){
+      const{value,done}=await reader.read();
+      if(done)break;
+      buf+=decoder.decode(value,{stream:true});
+      let idx;
+      while((idx=buf.indexOf("\n\n"))!==-1){
+        const raw=buf.slice(0,idx);buf=buf.slice(idx+2);
+        const line=raw.split("\n").find(l=>l.startsWith("data:"));
+        if(!line)continue;
+        let evt;try{evt=JSON.parse(line.slice(5).trim())}catch(e){continue}
+        if(evt.type==="start"){if(evt.session_id)sid=evt.session_id}
+        else if(evt.type==="chunk"){
+          if(!pushed){msgs.push(botMsg);pushed=true}
+          botMsg.text+=(botMsg.text?" ":"")+evt.text;render();
+        }else if(evt.type==="done"){
+          if(!pushed){msgs.push(botMsg);pushed=true}
+          if(evt.session_id)sid=evt.session_id;
+          botMsg.text=evt.reply;botMsg.intent=evt.intent;botMsg.confidence=evt.confidence;
+          botMsg.escalated=evt.escalated;botMsg.srcCount=evt.sources?evt.sources.length:0;
+          render();
+        }else if(evt.type==="error"){
+          if(!pushed){msgs.push(botMsg);pushed=true}
+          botMsg.text=botMsg.text||"Something went wrong. Please try again.";botMsg.error=true;render();
+        }
+      }
+    }
+  }catch(e){
+    if(!pushed)msgs.push({role:"bot",text:"Connection error. Is the server running?",error:true});
+    else{botMsg.text="Connection error. Is the server running?";botMsg.error=true}
+  }
   busy=false;render();inp.focus()}
 
-async function clearChat(){if(sid)try{await fetch(`${API}/api/session/${sid}`,{method:"DELETE",headers:{"ngrok-skip-browser-warning":"true"}})}catch{}sid=null;msgs=[];chatMode=false;render()}
+async function clearChat(){if(sid)try{await fetch(`${API}/api/session/${sid}`,{method:"DELETE",headers:{"ngrok-skip-browser-warning":"true","X-API-Key":API_KEY}})}catch{}sid=null;msgs=[];chatMode=false;render()}
 
 // MODAL
 function openModal(){document.getElementById("modal").style.display="flex";document.getElementById("m-prompt").focus()}
@@ -259,7 +494,7 @@ async function createPersona(){
   document.getElementById("m-create").disabled=false}
 
 async function deletePersona(id){
-  try{await fetch(`${API}/api/persona/${id}`,{method:"DELETE",headers:{"ngrok-skip-browser-warning":"true"}})}catch{}
+  try{await fetch(`${API}/api/persona/${id}`,{method:"DELETE",headers:{"ngrok-skip-browser-warning":"true","X-API-Key":API_KEY}})}catch{}
   allSectors=allSectors.filter(s=>s.id!==id);
   pick(allSectors[0])}
 
@@ -269,518 +504,3 @@ init();
 </script>
 </body>
 </html>
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agent Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-<style>
-:root{--purple:#7C5CFC;--purple-hover:#6B4CE6;--purple-light:#EDE9FE;--bg:#F7F7FB;--card:#fff;--text:#1F2937;--text-light:#6B7280;--text-muted:#9CA3AF;--border:#E5E7EB;--green:#22C55E;--red:#EF4444}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--border)}
-.topbar-left{display:flex;align-items:center;gap:12px}
-.topbar-avatar{width:40px;height:40px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid var(--purple)}
-.topbar-info .name{font-size:15px;font-weight:700}
-.topbar-info .status{font-size:12px;color:var(--green);display:flex;align-items:center;gap:4px}
-.topbar-info .status::before{content:'';width:6px;height:6px;border-radius:3px;background:var(--green)}
-.topbar-right{display:flex;gap:8px}
-.sos-btn{background:var(--red);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.5px}
-.menu-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text-light)}
-.sector-tabs{display:flex;gap:4px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--border);overflow-x:auto}
-.sector-tab{padding:8px 14px;border:none;border-radius:20px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;background:transparent;color:var(--text-light);transition:all .12s;white-space:nowrap;display:flex;align-items:center;gap:6px}
-.sector-tab:hover{background:#f3f3f8}
-.sector-tab.active{background:var(--purple);color:#fff}
-.main-area{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:24px 16px}
-.landing{text-align:center;max-width:500px;width:100%}
-.landing-icon{width:72px;height:72px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:32px;margin:20px auto 16px;border:2px solid var(--purple)}
-.landing-title{font-size:22px;font-weight:700;margin-bottom:6px}
-.landing-desc{font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:4px}
-.landing-badge{font-size:11px;color:var(--green);font-weight:600;margin-bottom:24px}
-.section-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
-.services{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:28px}
-.service-btn{padding:10px 18px;border:1px solid var(--border);border-radius:24px;background:var(--card);color:var(--text);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .12s;display:flex;align-items:center;gap:6px}
-.service-btn:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-light)}
-.service-btn.highlight{border-color:var(--purple);color:var(--purple);background:var(--purple-light)}
-.languages{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px}
-.lang-btn{padding:6px 14px;border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--text-light);font-size:12px;cursor:pointer;font-family:inherit;transition:all .12s}
-.lang-btn:hover,.lang-btn.active{border-color:var(--purple);color:var(--purple);background:var(--purple-light)}
-.lang-hint{font-size:11px;color:var(--text-muted);margin-top:8px}
-.chat-messages{flex:1;width:100%;max-width:600px;padding:0 4px}
-.msg-row{display:flex;margin-bottom:14px}
-.msg-row.user{justify-content:flex-end}
-.msg-row.bot{justify-content:flex-start}
-.msg-wrap{max-width:80%}
-.bot-info{display:flex;align-items:center;gap:5px;margin-bottom:3px}
-.bot-av{width:20px;height:20px;border-radius:50%;background:var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:10px}
-.bot-nm{font-size:11px;font-weight:600;color:var(--text-light)}
-.bubble{padding:11px 15px;font-size:14px;line-height:1.65;white-space:pre-wrap}
-.bubble.user{background:var(--purple);color:#fff;border-radius:16px 16px 4px 16px}
-.bubble.bot{background:var(--card);color:var(--text);border-radius:16px 16px 16px 4px;border:1px solid var(--border)}
-.bubble.error{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;border-radius:16px}
-.bubble.escalated{background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;border-radius:16px}
-.tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
-.tag{font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:4px}
-.t-int{background:var(--purple-light);color:var(--purple)}
-.t-conf{background:#F3F4F6;color:var(--text-light)}
-.t-esc{background:#FFFBEB;color:#92400E}
-.t-src{background:#ECFDF5;color:#065F46}
-.typing-row{display:flex;gap:4px;padding:11px 15px}
-.t-dot{width:7px;height:7px;border-radius:4px;background:var(--text-muted);animation:tp 1.4s ease-in-out infinite}
-.t-dot:nth-child(2){animation-delay:.2s}
-.t-dot:nth-child(3){animation-delay:.4s}
-@keyframes tp{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:1}}
-.input-bar{padding:10px 16px 14px;background:var(--card);border-top:1px solid var(--border);display:flex;gap:10px;align-items:center}
-.msg-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:24px;padding:12px 20px;font-size:14px;font-family:inherit;outline:none;color:var(--text)}
-.msg-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-light)}
-.msg-input::placeholder{color:var(--text-muted)}
-.send{width:44px;height:44px;border-radius:50%;background:var(--purple);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .1s}
-.send:disabled{opacity:.3;cursor:default}
-.send:active:not(:disabled){transform:scale(.92)}
-.send svg{width:20px;height:20px}
-.footer{text-align:center;padding:6px;font-size:11px;color:var(--text-muted);background:var(--card);border-top:1px solid var(--border)}
-.footer a{color:var(--purple);text-decoration:none;font-weight:600}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-</style>
-</head>
-<body>
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="topbar-avatar" id="t-avatar"></div>
-    <div class="topbar-info"><div class="name" id="t-name"></div><div class="status" id="t-status"></div></div>
-  </div>
-  <div class="topbar-right">
-    <button class="sos-btn" id="sos-btn" style="display:none" onclick="sendSOS()">SOS</button>
-    <button class="menu-btn" onclick="clearChat()" title="New chat">+</button>
-  </div>
-</div>
-<div class="sector-tabs" id="sector-tabs"></div>
-<div class="main-area" id="main-area"></div>
-<div class="lang-bar">
-  <label for="src-lang">Input</label>
-  <select class="lang-select" id="src-lang"></select>
-  <label for="tgt-lang">Output</label>
-  <select class="lang-select" id="tgt-lang"></select>
-</div>
-<div class="input-bar">
-  <input class="msg-input" id="msg-input" placeholder="" onkeydown="if(event.key==='Enter')doSend()">
-  <button class="send" id="send-btn" onclick="doSend()" disabled>
-    <svg viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </button>
-</div>
-<div class="footer">Powered by <a href="#">AgentPlatform</a> &middot; <a href="/docs">Admin</a></div>
-<script>
-const API=window.location.origin;
-const HDR={"Content-Type":"application/json","ngrok-skip-browser-warning":"true"};
-const S=[
-  {id:"retail",name:"Retail",icon:"\u{1F6D2}",agent:"Priya",company:"ShopEasy",desc:"AI shopping assistant \u2014 track orders, request refunds, and get product help.",services:[{t:"Track Order",h:1},{t:"Refund"},{t:"Returns"},{t:"Products",h:1},{t:"Payment Help"},{t:"Complaints"}],ph:"Describe your issue \u2014 e.g. order tracking, refund..."},
-  {id:"education",name:"Education",icon:"\u{1F393}",agent:"Arjun",company:"LearnHub",desc:"AI student counselor \u2014 find courses, apply for admission, and check scholarships.",services:[{t:"Course Info",h:1},{t:"Apply Now"},{t:"Fee Structure"},{t:"Exam Schedule",h:1},{t:"Scholarships"},{t:"Placements"}],ph:"Ask about courses, admissions, fees..."},
-  {id:"medical",name:"Medical",icon:"\u{1F3E5}",agent:"Dr. Meera",company:"MedCare Hospital",desc:"AI health assistant \u2014 find the right specialist, book appointments, and manage records.",services:[{t:"Book Doctor",h:1},{t:"Health Checkup"},{t:"Lab Reports"},{t:"Book Tests",h:1},{t:"Hospital Info"},{t:"Customer Support"}],ph:"Describe your needs \u2014 e.g. book appointment...",sos:1},
-  {id:"real_estate",name:"Real Estate",icon:"\u{1F3E0}",agent:"Vikram",company:"HomeNest Real Estate",desc:"AI property advisor \u2014 find properties, schedule visits, and calculate EMI.",services:[{t:"Search Property",h:1},{t:"Site Visit"},{t:"EMI Calculator",h:1},{t:"Documents"},{t:"Locality Info"},{t:"Builder Info"}],ph:"Tell us what you need \u2014 e.g. 2BHK Gachibowli..."},
-  {id:"banking",name:"Banking",icon:"\u{1F3E6}",agent:"Ananya",company:"TrustBank",desc:"AI banking assistant \u2014 check loans, calculate EMI, and manage your account.",services:[{t:"Loan Eligibility",h:1},{t:"EMI Calculator"},{t:"Credit Card"},{t:"FD Rates",h:1},{t:"KYC Status"},{t:"Dispute"}],ph:"Ask about loans, EMI, accounts, cards..."},
-  {id:"tourism",name:"Tourism",icon:"\u{2708}\u{FE0F}",agent:"Riya",company:"WanderIndia",desc:"AI travel concierge \u2014 plan trips, find hotels, and get visa guidance.",services:[{t:"Plan Trip",h:1},{t:"Hotels"},{t:"Transport"},{t:"Visa Help",h:1},{t:"Packages"},{t:"Budget Estimate"}],ph:"Where do you want to go? \u2014 e.g. 5 days Goa..."},
-];
-const LANGS=["English","\u0C24\u0C46\u0C32\u0C41\u0C17\u0C41","\u0939\u093F\u0902\u0926\u0940","\u0BA4\u0BAE\u0BBF\u0BB4\u0BCD","\u0C95\u0CA8\u0CCD\u0CA8\u0CA1","\u0D2E\u0D32\u0D2F\u0D3E\u0D33\u0D02","\u092E\u0930\u093E\u0920\u0940","\u09AC\u09BE\u0982\u09B2\u09BE","\u0A97\u0AC1\u0A9C\u0AB0\u0ABE\u0AA4\u0AC0","\u0A2A\u0A70\u0A1C\u0A3E\u0A2C\u0A40","\u0B13\u0B21\u0B3C\u0B3F\u0B06","\u0985\u09B8\u09AE\u09C0\u09AF\u09BC\u09BE"];
-let cur=S[0],sid=null,msgs=[],busy=false,chatMode=false;
-function init(){renderTabs();pick(S[0]);document.getElementById("msg-input").addEventListener("input",updBtn)}
-function renderTabs(){document.getElementById("sector-tabs").innerHTML=S.map(s=>`<button class="sector-tab ${s.id===cur.id?'active':''}" onclick="pick(S.find(x=>x.id==='${s.id}'))">${s.icon} ${s.name}</button>`).join("")}
-function pick(s){cur=s;sid=null;msgs=[];chatMode=false;busy=false;renderTabs();document.getElementById("t-avatar").textContent=s.icon;document.getElementById("t-name").textContent=s.company;document.getElementById("t-status").textContent="AI "+s.name+" Assistant \u00B7 Online";document.getElementById("msg-input").placeholder=s.ph;document.getElementById("sos-btn").style.display=s.sos?"block":"none";render();document.getElementById("msg-input").focus()}
-function render(){
-  const a=document.getElementById("main-area");
-  if(!chatMode||!msgs.length){
-    a.innerHTML=`<div class="landing"><div class="landing-icon">${cur.icon}</div><div class="landing-title">${cur.company}</div><div class="landing-desc">${cur.desc}</div><div class="landing-badge">24/7 Customer Support</div><div class="section-label">Services</div><div class="services">${cur.services.map(s=>`<button class="service-btn ${s.h?'highlight':''}" onclick="tap('${s.t}')">${s.t}</button>`).join("")}</div><div class="section-label">Available Languages</div><div class="languages">${LANGS.map((l,i)=>`<button class="lang-btn ${i===0?'active':''}">${l}</button>`).join("")}</div><div class="lang-hint">Chat in your preferred language</div></div>`;
-    return}
-  a.innerHTML=`<div class="chat-messages">${msgs.map(m=>{
-    if(m.role==="user")return`<div class="msg-row user"><div class="msg-wrap"><div class="bubble user">${esc(m.text)}</div></div></div>`;
-    let bc="bot";if(m.error)bc="error";if(m.escalated)bc="escalated";
-    let tg="";if(m.intent)tg+=`<span class="tag t-int">${m.intent}</span><span class="tag t-conf">${Math.round(m.confidence*100)}%</span>`;
-    if(m.escalated)tg+=`<span class="tag t-esc">escalated</span>`;if(m.srcCount)tg+=`<span class="tag t-src">${m.srcCount} sources</span>`;
-    return`<div class="msg-row bot"><div class="msg-wrap"><div class="bot-info"><div class="bot-av">${cur.icon}</div><span class="bot-nm">${cur.agent}</span></div><div class="bubble ${bc}">${esc(m.text)}</div>${tg?`<div class="tags">${tg}</div>`:""}</div></div>`}).join("")}
-  ${busy?`<div class="msg-row bot"><div class="msg-wrap"><div class="bot-info"><div class="bot-av">${cur.icon}</div><span class="bot-nm">${cur.agent}</span></div><div class="bubble bot"><div class="typing-row"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div></div></div></div>`:""}</div>`;
-  a.scrollTop=a.scrollHeight}
-function tap(t){document.getElementById("msg-input").value=t;doSend()}
-function sendSOS(){document.getElementById("msg-input").value="I have a medical emergency right now";doSend()}
-async function doSend(){const inp=document.getElementById("msg-input"),text=inp.value.trim();if(!text||busy)return;inp.value="";updBtn();chatMode=true;msgs.push({role:"user",text});busy=true;render();
-  const srcLang=document.getElementById("src-lang").value;
-  const tgtLang=document.getElementById("tgt-lang").value;
-  try{const r=await fetch(`${API}/api/chat`,{method:"POST",headers:HDR,body:JSON.stringify({message:text,session_id:sid,sector:cur.id,src_lang:srcLang,lang:tgtLang})});const d=await r.json();if(d.session_id)sid=d.session_id;msgs.push({role:"bot",text:d.reply,intent:d.intent,confidence:d.confidence,escalated:d.escalated,srcCount:d.sources?d.sources.length:0,error:false})}catch(e){msgs.push({role:"bot",text:"Connection error. Is the server running?",error:true})}
-  busy=false;render();inp.focus()}
-async function clearChat(){if(sid)try{await fetch(`${API}/api/session/${sid}`,{method:"DELETE",headers:{"ngrok-skip-browser-warning":"true"}})}catch{}sid=null;msgs=[];chatMode=false;render()}
-function updBtn(){document.getElementById("send-btn").disabled=!document.getElementById("msg-input").value.trim()}
-function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
-init();
-</script>
-</body>
-</html> -->
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agent Platform — Test UI</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root {
-  --purple: #7C5CFC;
-  --purple-hover: #6B4CE6;
-  --purple-light: #EDE9FE;
-  --bg: #F9FAFB;
-  --card: #e7e7ee;
-  --text: #1F2937;
-  --text-light: #6B7280;
-  --text-muted: #9CA3AF;
-  --border: #E5E7EB;
-  --green: #22C55E;
-  --bot-bg: #F3F4F6;
-  --input-bg: #F9FAFB;
-  --white: #fff;
-  --red: #EF4444;
-  --amber: #F59E0B;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
-
-.sidebar { width: 260px; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-.sidebar-head { padding: 18px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-.logo { width: 34px; height: 34px; border-radius: 10px; background: var(--purple); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
-.sidebar-title { font-size: 16px; font-weight: 700; }
-.sidebar-sub { font-size: 11px; color: var(--text-muted); }
-.sectors { flex: 1; padding: 10px; overflow-y: auto; }
-.sector-label { font-size: 10px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 12px; }
-.sector-btn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: none; border-radius: 10px; cursor: pointer; background: transparent; color: var(--text-light); font-family: inherit; font-size: 13px; text-align: left; transition: all 0.12s; margin-bottom: 2px; }
-.sector-btn:hover { background: #f3f3f8; }
-.sector-btn.active { background: var(--purple-light); color: var(--purple); }
-.sector-btn .icon { font-size: 16px; width: 26px; text-align: center; }
-.sector-btn .name { font-weight: 400; }
-.sector-btn.active .name { font-weight: 600; }
-.sector-btn .agent { font-size: 11px; color: var(--text-muted); }
-.sector-btn.active .agent { color: var(--purple); }
-.dot-live { width: 6px; height: 6px; border-radius: 3px; background: var(--green); margin-left: auto; }
-.sidebar-foot { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-light); }
-.status-dot { width: 7px; height: 7px; border-radius: 4px; background: var(--green); display: inline-block; margin-right: 4px; }
-
-.main { flex: 1; display: flex; flex-direction: column; background: var(--white); }
-.header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid var(--border); }
-.header-left { display: flex; align-items: center; gap: 12px; }
-.header-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--purple-light); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.header-name { font-size: 15px; font-weight: 600; }
-.header-agent { font-size: 12px; color: var(--text-muted); }
-.header-right { display: flex; align-items: center; gap: 8px; }
-.session-tag { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); padding: 4px 10px; background: var(--bot-bg); border-radius: 6px; border: 1px solid var(--border); }
-.new-chat-btn { background: var(--purple); border: none; border-radius: 8px; color: #fff; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
-.new-chat-btn:hover { background: var(--purple-hover); }
-
-.chat-area { flex: 1; overflow-y: auto; padding: 24px; }
-.empty-state { text-align: center; margin-top: 60px; }
-.empty-icon { width: 64px; height: 64px; border-radius: 20px; background: var(--purple-light); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px; }
-.empty-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-.empty-desc { font-size: 14px; color: var(--text-muted); max-width: 380px; margin: 0 auto; line-height: 1.6; }
-.suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 20px; }
-.suggest-btn { background: var(--input-bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text-light); padding: 8px 16px; font-size: 13px; cursor: pointer; font-family: inherit; transition: all 0.12s; }
-.suggest-btn:hover { border-color: var(--purple); color: var(--purple); }
-
-.msg-row { display: flex; margin-bottom: 16px; }
-.msg-row.user { justify-content: flex-end; }
-.msg-row.bot { justify-content: flex-start; }
-.msg-wrap { max-width: 72%; }
-.bot-header { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
-.bot-avatar { width: 22px; height: 22px; border-radius: 7px; background: var(--purple-light); display: flex; align-items: center; justify-content: center; font-size: 11px; }
-.bot-name { font-size: 12px; font-weight: 600; color: var(--text-light); }
-.msg-bubble { padding: 12px 16px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
-.msg-bubble.user { background: var(--purple); color: #fff; border-radius: 14px 14px 4px 14px; }
-.msg-bubble.bot { background: var(--card); color: var(--text); border-radius: 14px 14px 14px 4px; }
-.msg-bubble.error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; border-radius: 14px; }
-.msg-bubble.escalated { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; border-radius: 14px; }
-.msg-tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-.tag { font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 8px; border-radius: 4px; }
-.tag-intent { background: var(--purple-light); color: var(--purple); font-weight: 500; }
-.tag-conf { background: var(--bot-bg); color: var(--text-light); }
-.tag-esc { background: #FFFBEB; color: #92400E; }
-.tag-src { background: #ECFDF5; color: #065F46; }
-
-.typing { display: flex; gap: 5px; padding: 14px 18px; }
-.typing-dot { width: 8px; height: 8px; border-radius: 4px; background: var(--text-muted); animation: dotPulse 1.4s ease-in-out infinite; }
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes dotPulse { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
-
-.input-area { padding: 12px 20px 16px; border-top: 1px solid var(--border); }
-.stats-bar { display: flex; gap: 18px; margin-bottom: 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); }
-.stats-bar b { font-weight: 500; }
-.stats-bar .val-purple { color: var(--purple); }
-.input-row { display: flex; gap: 10px; align-items: center; }
-.chat-input { flex: 1; background: var(--input-bg); border: 1px solid var(--border); border-radius: 12px; padding: 13px 18px; color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: all 0.15s; }
-.chat-input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px var(--purple-light); }
-.chat-input::placeholder { color: var(--text-muted); }
-.send-btn { background: var(--purple); border: none; border-radius: 12px; padding: 13px 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
-.send-btn:hover { background: var(--purple-hover); }
-.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.send-btn svg { width: 18px; height: 18px; }
-
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-</style>
-</head>
-<body>
-
-<div class="sidebar">
-  <div class="sidebar-head">
-    <div class="logo">A</div>
-    <div>
-      <div class="sidebar-title">Agent Platform</div>
-      <div class="sidebar-sub">6 sector AI agents</div>
-    </div>
-  </div>
-  <div class="sectors">
-    <div class="sector-label">Sectors</div>
-    <div id="sector-list"></div>
-  </div>
-  <div class="sidebar-foot">
-    <span><span class="status-dot"></span>LLM connected</span>
-    <span>Phase 3</span>
-  </div>
-</div>
-
-<div class="main">
-  <div class="header">
-    <div class="header-left">
-      <div class="header-icon" id="h-icon"></div>
-      <div>
-        <div class="header-name" id="h-name"></div>
-        <div class="header-agent" id="h-agent"></div>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="session-tag" id="h-session" style="display:none"></div>
-      <button class="new-chat-btn" onclick="clearChat()">New chat</button>
-    </div>
-  </div>
-
-  <div class="chat-area" id="chat-area"></div>
-
-  <div class="input-area">
-    <div class="stats-bar" id="stats-bar" style="display:none"></div>
-    <div class="input-row">
-      <input class="chat-input" id="chat-input" placeholder="" onkeydown="if(event.key==='Enter')sendMsg()">
-      <button class="send-btn" id="send-btn" onclick="sendMsg()" disabled>
-        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
-  </div>
-</div>
-
-<script>
-const API = "http://localhost:8000";
-
-const SECTORS = [
-  { id:"retail", name:"Retail", icon:"\u{1F6D2}", agent:"Priya", desc:"Ask about orders, refunds, returns, or products", suggests:["Where is my order #12345?","I want a refund","Return policy for electronics?"] },
-  { id:"education", name:"Education", icon:"\u{1F393}", agent:"Arjun", desc:"Ask about courses, admissions, fees, or placements", suggests:["What courses in computer science?","How do I apply?","Scholarship info"] },
-  { id:"medical", name:"Medical", icon:"\u{1F3E5}", agent:"Dr. Meera", desc:"Book appointments, check availability, or ask about services", suggests:["Book cardiologist appointment","Is Dr. Sharma available?","Collect my reports"] },
-  { id:"real_estate", name:"Real Estate", icon:"\u{1F3E0}", agent:"Vikram", desc:"Search properties, schedule visits, or calculate EMI", suggests:["2BHK in Gachibowli under 80L","Schedule site visit","EMI for 60L loan"] },
-  { id:"banking", name:"Banking", icon:"\u{1F3E6}", agent:"Ananya", desc:"Check loan eligibility, EMI, cards, or accounts", suggests:["Home loan EMI for 50 lakhs","Loan eligibility check","Dispute a transaction"] },
-  { id:"tourism", name:"Tourism", icon:"\u{2708}\u{FE0F}", agent:"Riya", desc:"Plan trips, find hotels, get visa guidance", suggests:["5-day trip to Goa","Hotels in Manali under 5000","Visa for Thailand?"] },
-];
-
-let currentSector = SECTORS[0];
-let sessionId = null;
-let messages = [];
-let loading = false;
-
-function init() {
-  renderSidebar();
-  switchSector(SECTORS[0]);
-  document.getElementById("chat-input").addEventListener("input", updateSendBtn);
-}
-
-function renderSidebar() {
-  const el = document.getElementById("sector-list");
-  el.innerHTML = SECTORS.map(s => `
-    <button class="sector-btn ${s.id === currentSector.id ? 'active' : ''}" onclick="switchSector(SECTORS.find(x=>x.id==='${s.id}'))">
-      <span class="icon">${s.icon}</span>
-      <div style="flex:1">
-        <div class="name">${s.name}</div>
-        <div class="agent">${s.agent}</div>
-      </div>
-      ${s.id === currentSector.id ? '<div class="dot-live"></div>' : ''}
-    </button>
-  `).join("");
-}
-
-function switchSector(s) {
-  currentSector = s;
-  sessionId = null;
-  messages = [];
-  renderSidebar();
-  updateHeader();
-  renderChat();
-  document.getElementById("stats-bar").style.display = "none";
-  document.getElementById("h-session").style.display = "none";
-  document.getElementById("chat-input").placeholder = `Message ${s.agent}...`;
-  document.getElementById("chat-input").focus();
-}
-
-function updateHeader() {
-  document.getElementById("h-icon").textContent = currentSector.icon;
-  document.getElementById("h-name").textContent = currentSector.name;
-  document.getElementById("h-agent").textContent = `Chatting with ${currentSector.agent}`;
-}
-
-function renderChat() {
-  const area = document.getElementById("chat-area");
-
-  if (messages.length === 0) {
-    area.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">${currentSector.icon}</div>
-        <div class="empty-title">Chat with ${currentSector.agent}</div>
-        <div class="empty-desc">${currentSector.desc}</div>
-        <div class="suggestions">
-          ${currentSector.suggests.map(q => `<button class="suggest-btn" onclick="sendSuggestion('${q.replace(/'/g,"\\'")}')">${q}</button>`).join("")}
-        </div>
-      </div>
-    `;
-    return;
-  }
-
-  area.innerHTML = messages.map((m, i) => {
-    if (m.role === "user") {
-      return `<div class="msg-row user"><div class="msg-wrap"><div class="msg-bubble user">${esc(m.text)}</div></div></div>`;
-    }
-    let bubbleClass = "bot";
-    if (m.error) bubbleClass = "error";
-    if (m.escalated) bubbleClass = "escalated";
-
-    let tags = "";
-    if (m.intent) {
-      tags += `<span class="tag tag-intent">${m.intent}</span>`;
-      tags += `<span class="tag tag-conf">${Math.round(m.confidence * 100)}%</span>`;
-    }
-    if (m.escalated) tags += `<span class="tag tag-esc">escalated</span>`;
-    if (m.sources) tags += `<span class="tag tag-src">${m.sources} sources</span>`;
-
-    return `
-      <div class="msg-row bot">
-        <div class="msg-wrap">
-          <div class="bot-header">
-            <div class="bot-avatar">${currentSector.icon}</div>
-            <span class="bot-name">${currentSector.agent}</span>
-          </div>
-          <div class="msg-bubble ${bubbleClass}">${esc(m.text)}</div>
-          ${tags ? `<div class="msg-tags">${tags}</div>` : ""}
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  if (loading) {
-    area.innerHTML += `
-      <div class="msg-row bot">
-        <div class="msg-wrap">
-          <div class="bot-header">
-            <div class="bot-avatar">${currentSector.icon}</div>
-            <span class="bot-name">${currentSector.agent}</span>
-          </div>
-          <div class="msg-bubble bot">
-            <div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  area.scrollTop = area.scrollHeight;
-}
-
-function sendSuggestion(text) {
-  document.getElementById("chat-input").value = text;
-  sendMsg();
-}
-
-async function sendMsg() {
-  const input = document.getElementById("chat-input");
-  const text = input.value.trim();
-  if (!text || loading) return;
-
-  input.value = "";
-  updateSendBtn();
-  messages.push({ role: "user", text });
-  loading = true;
-  renderChat();
-
-  const t0 = performance.now();
-
-  try {
-    const res = await fetch(`${API}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, session_id: sessionId, sector: currentSector.id }),
-    });
-    const d = await res.json();
-    const lat = Math.round(performance.now() - t0);
-
-    if (d.session_id) {
-      sessionId = d.session_id;
-      const stag = document.getElementById("h-session");
-      stag.textContent = sessionId.slice(0, 8);
-      stag.style.display = "block";
-    }
-
-    messages.push({
-      role: "bot",
-      text: d.reply,
-      intent: d.intent,
-      confidence: d.confidence,
-      escalated: d.escalated,
-      sources: d.sources ? d.sources.length : 0,
-      error: false,
-    });
-
-    const sb = document.getElementById("stats-bar");
-    let statsHtml = "";
-    if (d.intent) statsHtml += `<span>intent: <b class="val-purple">${d.intent}</b></span>`;
-    if (d.confidence) statsHtml += `<span>confidence: <b>${Math.round(d.confidence * 100)}%</b></span>`;
-    statsHtml += `<span>latency: <b>${lat}ms</b></span>`;
-    if (d.sources) statsHtml += `<span>sources: <b>${d.sources.length}</b></span>`;
-    if (d.escalated) statsHtml += `<span style="color:#F59E0B">escalated</span>`;
-    sb.innerHTML = statsHtml;
-    sb.style.display = "flex";
-
-  } catch (err) {
-    messages.push({ role: "bot", text: "Connection error. Is the server running on localhost:8000?", error: true });
-  }
-
-  loading = false;
-  renderChat();
-  input.focus();
-}
-
-async function clearChat() {
-  if (sessionId) {
-    try { await fetch(`${API}/api/session/${sessionId}`, { method: "DELETE" }); } catch {}
-  }
-  sessionId = null;
-  messages = [];
-  document.getElementById("stats-bar").style.display = "none";
-  document.getElementById("h-session").style.display = "none";
-  renderChat();
-}
-
-function updateSendBtn() {
-  document.getElementById("send-btn").disabled = !document.getElementById("chat-input").value.trim();
-}
-
-function esc(s) {
-  const d = document.createElement("div");
-  d.textContent = s;
-  return d.innerHTML;
-}
-
-init();
-</script>
-</body>
-</html> -->

@@ -124,6 +124,20 @@
     messages.innerHTML += `<div class="cw-msg bot typing" id="cw-typing">Typing...</div>`;
     messages.scrollTop = messages.scrollHeight;
 
+    let botBubble = null;
+    const removeTyping = () => {
+      const typing = document.getElementById("cw-typing");
+      if (typing) typing.remove();
+    };
+    const ensureBubble = () => {
+      if (botBubble) return botBubble;
+      removeTyping();
+      botBubble = document.createElement("div");
+      botBubble.className = "cw-msg bot";
+      messages.appendChild(botBubble);
+      return botBubble;
+    };
+
     try {
       const res = await fetch(`${API_URL}/api/chat`, {
         method: "POST",
@@ -135,22 +149,57 @@
           message: text,
           session_id: sessionId,
           sector: SECTOR,
+          stream: true,
         }),
       });
 
-      const data = await res.json();
-      sessionId = data.session_id;
+      if (!res.ok || !res.body) throw new Error("bad response");
 
-      // Remove typing indicator
-      const typing = document.getElementById("cw-typing");
-      if (typing) typing.remove();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      let replyText = "";
 
-      // Show bot reply
-      messages.innerHTML += `<div class="cw-msg bot">${escapeHtml(data.reply)}</div>`;
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+
+        let idx;
+        while ((idx = buf.indexOf("\n\n")) !== -1) {
+          const raw = buf.slice(0, idx);
+          buf = buf.slice(idx + 2);
+          const line = raw.split("\n").find((l) => l.startsWith("data:"));
+          if (!line) continue;
+
+          let evt;
+          try {
+            evt = JSON.parse(line.slice(5).trim());
+          } catch (e) {
+            continue;
+          }
+
+          if (evt.type === "start") {
+            if (evt.session_id) sessionId = evt.session_id;
+          } else if (evt.type === "chunk") {
+            replyText += (replyText ? " " : "") + evt.text;
+            ensureBubble().textContent = replyText;
+            messages.scrollTop = messages.scrollHeight;
+          } else if (evt.type === "done") {
+            if (evt.session_id) sessionId = evt.session_id;
+            ensureBubble().textContent = evt.reply;
+            messages.scrollTop = messages.scrollHeight;
+          } else if (evt.type === "error") {
+            ensureBubble().textContent =
+              replyText || "Sorry, something went wrong. Please try again.";
+          }
+        }
+      }
+
+      removeTyping();
     } catch (err) {
-      const typing = document.getElementById("cw-typing");
-      if (typing) typing.remove();
-      messages.innerHTML += `<div class="cw-msg bot">Sorry, something went wrong. Please try again.</div>`;
+      removeTyping();
+      ensureBubble().textContent = "Sorry, something went wrong. Please try again.";
     }
 
     sendBtn.disabled = false;

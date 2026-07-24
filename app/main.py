@@ -4,13 +4,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
 from datetime import datetime
+from prometheus_client import make_asgi_app
 
 from app.config import get_settings
-from app.routers import chat, agents, documents, analytics, tenants, openai_compat
+from app.routers import chat, agents, documents, analytics, tenants
 from app.routers.persona import router as persona_router
 from app.services.llm_client import llm_client
 from app.services.memory_manager import memory_manager
 from app.models.db_session import init_db, shutdown_db
+from app.middleware.auth import AuthMiddleware
 from app.models.schemas import HealthResponse
 
 settings = get_settings()
@@ -39,6 +41,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(AuthMiddleware)
 
 app.include_router(chat.router)
 app.include_router(agents.router)
@@ -46,7 +49,6 @@ app.include_router(documents.router)
 app.include_router(analytics.router)
 app.include_router(tenants.router)
 app.include_router(persona_router)
-app.include_router(openai_compat.router)  # OpenAI-compatible /v1 for Chat Bucket custom-LLM
 
 
 @app.get("/")
@@ -71,6 +73,11 @@ async def health():
 
 
 app.mount("/ui", StaticFiles(directory="frontend", html=True), name="ui")
+
+# Not in AuthMiddleware.PUBLIC_PATHS on purpose — /metrics requires X-API-Key,
+# per ARCHITECTURAL_IMPROVEMENTS.txt's warning that unauthenticated metrics
+# can leak business data (tenant/sector volumes).
+app.mount("/metrics", make_asgi_app(), name="metrics")
 
 
 if __name__ == "__main__":

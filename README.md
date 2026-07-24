@@ -11,6 +11,14 @@ User → Chat Widget → FastAPI → [Input Guardrails] → [Intent Classificati
      → Response → [Update Memory + Logs] → [Analytics]
 ```
 
+## Multi-language Support
+
+Conversations aren't limited to English — the agent can reply in roughly 100 languages, in the script the requested language calls for (native script by default, or transliterated/Roman script for the options explicitly offered that way, e.g. "Hindi (Roman script / Hinglish)").
+
+- **No translation microservice in the loop.** The chat pipeline used to round-trip through a separate translation step; that's gone from `chat_graph.py`. Instead, Gemma is prompted to read the user's message and write its reply directly in the requested language — it's fluent enough across languages that this beats translate-in/translate-out (simpler, one less moving part, no double-translation quality loss).
+- **Requesting a language:** `ChatRequest.lang` takes any plain language name — `"Hindi"`, `"Tamil"`, `"French"`, `"Hindi (Roman script / Hinglish)"`, etc. — there's no fixed enum or lookup table; whatever string is sent is interpolated straight into the LLM's system prompt. Defaults to `"ENGLISH"`. `ChatRequest.src_lang` is an optional hint about the incoming message's language/script (default `"auto"`) — it doesn't trigger any translation call, just nudges the LLM.
+- **Known trade-off:** RAG retrieval and the sector-specific blocked-phrase guardrail (e.g. catching phrases like "you should take" / "i diagnose") are still English-pattern/embedding-centric and weren't extended for multilingual use, so retrieval quality and that one safety check may be weaker in non-English conversations. This is an accepted trade-off, not a bug. PII guardrails (Aadhaar/PAN/phone/email/card) are regex-based and language-agnostic, so they're unaffected.
+
 ## Quick Start
 
 ### Prerequisites

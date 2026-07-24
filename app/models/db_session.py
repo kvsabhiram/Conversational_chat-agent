@@ -2,12 +2,17 @@
 
 Best-effort: if PostgreSQL is unreachable at startup, logs are skipped
 rather than failing every chat request.
+
+Schema is managed by Alembic (see /alembic), not by create_all() — run
+`alembic upgrade head` before starting the app (the Dockerfile entrypoint
+does this). init_db() only verifies connectivity.
 """
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 from app.config import get_settings
-from app.models.database import Base, ConversationLogDB
+from app.models.database import ConversationLogDB
 from app.utils.logger import get_logger
 
 logger = get_logger("db")
@@ -23,9 +28,9 @@ async def init_db() -> bool:
     global _db_ready
     try:
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+            await conn.execute(text("SELECT 1"))
         _db_ready = True
-        logger.info("PostgreSQL connected; conversation_logs table ready")
+        logger.info("PostgreSQL connected; schema managed by Alembic (alembic upgrade head)")
     except Exception as e:
         _db_ready = False
         logger.warning(f"PostgreSQL unavailable, conversation logs disabled: {e}")

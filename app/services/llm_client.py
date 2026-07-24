@@ -1,6 +1,8 @@
+import json
 import httpx
 import time
 from app.config import get_settings
+from app.utils import metrics
 from app.utils.logger import get_logger
 
 logger = get_logger("llm")
@@ -42,6 +44,7 @@ class LLMClient:
                 data = response.json()
         except Exception as e:
             latency = round((time.time() - start) * 1000, 2)
+            metrics.llm_errors_total.labels(endpoint="/completion").inc()
             logger.error(
                 f"LLM /completion failed after {latency}ms: {e}",
                 extra={"endpoint": "/completion", "latency_ms": latency, "error": str(e)},
@@ -49,6 +52,7 @@ class LLMClient:
             raise
 
         latency = round((time.time() - start) * 1000, 2)
+        metrics.llm_latency_seconds.labels(endpoint="/completion").observe(latency / 1000)
         text = data.get("content", "").strip()
         tokens = data.get("tokens_predicted", 0)
 
@@ -95,6 +99,7 @@ class LLMClient:
                 data = response.json()
         except Exception as e:
             latency = round((time.time() - start) * 1000, 2)
+            metrics.llm_errors_total.labels(endpoint="/v1/chat/completions").inc()
             logger.error(
                 f"LLM /v1/chat/completions failed after {latency}ms: {e}",
                 extra={
@@ -107,6 +112,7 @@ class LLMClient:
             raise
 
         latency = round((time.time() - start) * 1000, 2)
+        metrics.llm_latency_seconds.labels(endpoint="/v1/chat/completions").observe(latency / 1000)
         choice = data.get("choices", [{}])[0]
         text = choice.get("message", {}).get("content", "").strip()
         tokens = data.get("usage", {}).get("total_tokens", 0)
@@ -128,6 +134,77 @@ class LLMClient:
         )
 
         return {"text": text, "tokens_used": tokens, "latency_ms": latency}
+
+    async def astream_chat(
+        self,
+        messages: list[dict],
+        max_tokens: int = 1024,
+        temperature: float = 0.7,
+    ):
+        """Stream a chat completion, yielding text deltas as they arrive.
+
+        Uses the OpenAI-compatible SSE format (`data: {...}` lines,
+        terminated by `data: [DONE]`) that llama.cpp's server emits.
+        """
+        payload = {
+            "messages": messages,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "stream": True,
+        }
+        start = time.time()
+        chunks_out = 0
+
+        try:
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                async with client.stream(
+                    "POST", f"{self.base_url}/v1/chat/completions", json=payload
+                ) as response:
+                    response.raise_for_status()
+                    async for line in response.aiter_lines():
+                        if not line or not line.startswith("data:"):
+                            continue
+                        data = line[len("data:"):].strip()
+                        if data == "[DONE]":
+                            break
+                        try:
+                            event = json.loads(data)
+                        except json.JSONDecodeError:
+                            continue
+                        delta = (
+                            event.get("choices", [{}])[0]
+                            .get("delta", {})
+                            .get("content", "")
+                        )
+                        if delta:
+                            chunks_out += 1
+                            yield delta
+        except Exception as e:
+            latency = round((time.time() - start) * 1000, 2)
+            metrics.llm_errors_total.labels(endpoint="/v1/chat/completions:stream").inc()
+            logger.error(
+                f"LLM stream failed after {latency}ms: {e}",
+                extra={
+                    "endpoint": "/v1/chat/completions",
+                    "stream": True,
+                    "latency_ms": latency,
+                    "error": str(e),
+                },
+            )
+            raise
+
+        latency = round((time.time() - start) * 1000, 2)
+        metrics.llm_latency_seconds.labels(endpoint="/v1/chat/completions:stream").observe(latency / 1000)
+        logger.info(
+            f"LLM stream ok messages={len(messages)} latency={latency}ms chunks={chunks_out}",
+            extra={
+                "endpoint": "/v1/chat/completions",
+                "stream": True,
+                "messages_count": len(messages),
+                "latency_ms": latency,
+                "chunks": chunks_out,
+            },
+        )
 
     async def health_check(self) -> bool:
         """Try llama.cpp /health first, then Ollama /api/tags."""

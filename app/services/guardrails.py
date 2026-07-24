@@ -5,6 +5,7 @@ Output guardrails: Filter PII, hallucinations, off-topic responses.
 """
 
 import re
+from app.utils import metrics
 from app.utils.logger import get_logger
 
 logger = get_logger("guardrails")
@@ -45,16 +46,19 @@ async def check_input(message: str) -> tuple[bool, str]:
     for pattern in COMPILED_INJECTION:
         if pattern.search(message):
             logger.warning(f"Injection detected: {message[:100]}")
+            metrics.guardrail_blocks_total.labels(reason="prompt_injection").inc()
             return True, "prompt_injection"
 
     # Check harmful content
     for pattern in COMPILED_HARMFUL:
         if pattern.search(message):
             logger.warning(f"Harmful content detected: {message[:100]}")
+            metrics.guardrail_blocks_total.labels(reason="harmful_content").inc()
             return True, "harmful_content"
 
     # Check message length (DoS prevention)
     if len(message) > 4000:
+        metrics.guardrail_blocks_total.labels(reason="message_too_long").inc()
         return True, "message_too_long"
 
     return False, ""
@@ -68,7 +72,12 @@ PII_PATTERNS = {
     "phone": re.compile(r"\b(?:\+91[\-\s]?)?[6-9]\d{9}\b"),
     "email": re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"),
     "card_number": re.compile(r"\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b"),
-    "account_number": re.compile(r"\b\d{9,18}\b"),
+    # Requires "account"/"a/c"/"acct" context so we don't redact order IDs,
+    # tracking numbers, or long random digits that aren't bank accounts.
+    "account_number": re.compile(
+        r"\b(?:a/?c|acct|account)(?:\s*(?:no\.?|number|#))?[:\s]*\d{9,18}\b",
+        re.IGNORECASE,
+    ),
 }
 
 SECTOR_BLOCKED_PHRASES = {
@@ -103,6 +112,7 @@ async def check_output(response: str, sector: str) -> tuple[str, bool]:
             filtered = pattern.sub(f"[{pii_type.upper()}_REDACTED]", filtered)
             was_filtered = True
             logger.warning(f"PII filtered: {pii_type}")
+            metrics.guardrail_blocks_total.labels(reason=f"pii_{pii_type}").inc()
 
     # Check sector-specific blocked phrases
     blocked = SECTOR_BLOCKED_PHRASES.get(sector, [])
@@ -114,6 +124,7 @@ async def check_output(response: str, sector: str) -> tuple[str, bool]:
                 "Please consult with a qualified professional for specific advice."
             )
             was_filtered = True
+            metrics.guardrail_blocks_total.labels(reason="sector_blocked_phrase").inc()
             break
 
     return filtered, was_filtered

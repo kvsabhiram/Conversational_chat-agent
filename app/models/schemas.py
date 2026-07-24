@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
+
+BUILT_IN_SECTORS = {"retail", "education", "medical", "real_estate", "banking", "tourism"}
 
 
 class ChatRequest(BaseModel):
@@ -8,8 +10,35 @@ class ChatRequest(BaseModel):
     session_id: Optional[str] = None
     sector: str = Field(default="retail")
     tenant_id: Optional[str] = None
-    src_lang: str = Field(default="auto")
-    lang: str = Field(default="ENGLISH")
+    src_lang: str = Field(
+        default="auto",
+        description=(
+            "Optional hint about the message's language/script (e.g. 'Hindi', "
+            "'Hinglish'). Not used to call a translation service — the LLM reads "
+            "the message directly; this only nudges it when the script is ambiguous."
+        ),
+    )
+    lang: str = Field(
+        default="ENGLISH",
+        description=(
+            "Language the reply should be written in, as a plain name (e.g. "
+            "'Hindi', 'French', 'Japanese') — passed straight into the LLM prompt, "
+            "not looked up against a fixed list. See prompt_builder.language_instruction()."
+        ),
+    )
+    stream: bool = Field(
+        default=False,
+        description="If true, POST /api/chat returns text/event-stream instead of JSON.",
+    )
+
+    @field_validator("sector")
+    @classmethod
+    def _validate_sector(cls, v: str) -> str:
+        if v in BUILT_IN_SECTORS or v.startswith("custom_"):
+            return v
+        raise ValueError(
+            f"Invalid sector '{v}'. Must be one of {sorted(BUILT_IN_SECTORS)} or a 'custom_<id>' persona."
+        )
 
 
 class ChatResponse(BaseModel):
